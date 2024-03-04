@@ -1,0 +1,1 @@
+pyinstaller --onefile --add-data "MYINSTRUMENTS.csv;." --add-data "OrderLog.txt;." --add-data "ScripMaster.csv;." --add-data "TradeSetting.csv;." --add-data "FivePaisaIntegration.py;." --hidden-import py5paisa main.py
