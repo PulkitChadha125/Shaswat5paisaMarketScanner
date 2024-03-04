@@ -37,8 +37,86 @@ def get_historical_data():
 
 def get_live_market_feed():
     global client
-    req_list_ = [{"Exch": "N", "ExchType": "C", "ScripData": "ITC_EQ"},
+    req_list_ = [{"Exch": "N", "ExchType": "C", "ScripData": "ITC"},
     {"Exch": "N", "ExchType": "C", "ScripCode": "2885"}]
 
     print(client.fetch_market_feed_scrip(req_list_))
+
+def previousdayclose(code):
+    global client
+    req_list_ = [{"Exch": "N", "ExchType": "C", "ScripCode": code}]
+    responce=client.fetch_market_feed_scrip(req_list_)
+    pclose_value = float(responce['Data'][0]['PClose'])
+    return pclose_value
+
+def buy( ScripCode , Qty, Price,OrderType='B',Exchange='N',ExchangeType='C'):
+    global client
+    client.place_order(OrderType=OrderType,
+                       Exchange=Exchange,
+                       ExchangeType=ExchangeType,
+                       ScripCode = ScripCode,
+                       Qty=Qty,
+                       Price=Price)
+
+def sell( ScripCode , Qty, Price,OrderType='S',Exchange='N',ExchangeType='C'):
+    global client
+    client.place_order(OrderType=OrderType,
+                       Exchange=Exchange,
+                       ExchangeType=ExchangeType,
+                       ScripCode = ScripCode,
+                       Qty=Qty,
+                       Price=Price)
+def short( ScripCode , Qty, Price,OrderType='S',Exchange='N',ExchangeType='C'):
+    global client
+    client.place_order(OrderType=OrderType,
+                       Exchange=Exchange,
+                       ExchangeType=ExchangeType,
+                       ScripCode = ScripCode,
+                       Qty=Qty,
+                       Price=Price)
+
+def cover( ScripCode , Qty, Price,OrderType='B',Exchange='N',ExchangeType='C'):
+    global client
+    client.place_order(OrderType=OrderType,
+                       Exchange=Exchange,
+                       ExchangeType=ExchangeType,
+                       ScripCode = ScripCode,
+                       Qty=Qty,
+                       Price=Price)
+
+def get_position():
+    global client
+    responce = client.positions()
+
+    return responce
+
+def get_margin():
+    global client
+    responce= client.margin()
+    if responce:
+        net_available_margin =float (responce[0]['NetAvailableMargin'])
+        return net_available_margin
+    else:
+        print("Error: Unable to get NetAvailableMargin")
+        return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
