@@ -1,0 +1,1 @@
+05/03/2024 13:45:00 Buy order executed for BHARTIARTL for lotsize= 16.0  @ 1169.6 ,Target1 =1216.384,Target2 =1228.08,Target3 =1239.7759999999998, TslStep= 1637.4399999999998  And Stoploss =1099.424

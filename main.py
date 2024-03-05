@@ -372,22 +372,22 @@ def check_orders(symbol_dict):
 
 # FivePaisaIntegration.get_margin()
 # FivePaisaIntegration.get_ltp(code=2023678)
-FivePaisaIntegration.buy(ScripCode="1660" , Qty=int(1), Price=float(FivePaisaIntegration.get_ltp(code="1660")))
+# FivePaisaIntegration.buy(ScripCode="1660" , Qty=int(1), Price=float(FivePaisaIntegration.get_ltp(code="1660")))
 
-#
-#
-# def mainstrategy():
-#     global Leverage_multiplier
-#     strattime = credentials_dict.get('StartTime')
-#     stoptime = credentials_dict.get('Stoptime')
-#     start_time = datetime.strptime(strattime, '%H:%M').time()
-#     stop_time = datetime.strptime(stoptime, '%H:%M').time()
-#     while True:
-#         now = datetime.now().time()
-#         if now >= start_time :
-#             check_orders(symbol_dict)
-#             sleep_time.sleep(1)
-#
-#
-# my_trade_universe()
-# mainstrategy()
+
+
+def mainstrategy():
+    global Leverage_multiplier
+    strattime = credentials_dict.get('StartTime')
+    stoptime = credentials_dict.get('Stoptime')
+    start_time = datetime.strptime(strattime, '%H:%M').time()
+    stop_time = datetime.strptime(stoptime, '%H:%M').time()
+    while True:
+        now = datetime.now().time()
+        if now >= start_time :
+            check_orders(symbol_dict)
+            sleep_time.sleep(1)
+
+
+my_trade_universe()
+mainstrategy()
