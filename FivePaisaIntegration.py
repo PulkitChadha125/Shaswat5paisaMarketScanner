@@ -49,6 +49,16 @@ def previousdayclose(code):
     pclose_value = float(responce['Data'][0]['PClose'])
     return pclose_value
 
+
+def get_ltp(code):
+    global client
+    req_list_ = [{"Exch": "N", "ExchType": "C", "ScripCode": code}]
+    responce=client.fetch_market_feed_scrip(req_list_)
+    last_rate = float(responce['Data'][0].get('LastRate', 0))
+    print(last_rate)
+
+    return last_rate
+
 def buy( ScripCode , Qty, Price,OrderType='B',Exchange='N',ExchangeType='C'):
     global client
     client.place_order(OrderType=OrderType,
