@@ -11,6 +11,14 @@ totpstr="GUYDCMBRHA3TOXZVKBDUWRKZ"
 from py5paisa import FivePaisaClient
 import pyotp
 client=None
+
+
+def write_to_order_logs(message):
+    with open('Apilogs.txt', 'a') as file:  # Open the file in append mode
+        file.write(message + '\n')
+
+
+
 def login():
     global client
     cred={
@@ -61,38 +69,58 @@ def get_ltp(code):
 
 def buy( ScripCode , Qty, Price,OrderType='B',Exchange='N',ExchangeType='C'):
     global client
-    client.place_order(OrderType=OrderType,
+    res=client.place_order(OrderType=OrderType,
                        Exchange=Exchange,
                        ExchangeType=ExchangeType,
                        ScripCode = ScripCode,
                        Qty=Qty,
+                       IsIntraday = True,
                        Price=Price)
+    message="Buy order responce: ", res
+    print(message)
+    write_to_order_logs(message)
+
 
 def sell( ScripCode , Qty, Price,OrderType='S',Exchange='N',ExchangeType='C'):
     global client
-    client.place_order(OrderType=OrderType,
+    res=client.place_order(OrderType=OrderType,
                        Exchange=Exchange,
                        ExchangeType=ExchangeType,
                        ScripCode = ScripCode,
                        Qty=Qty,
+                       IsIntraday=True,
                        Price=Price)
+    message = "Sell order responce: ", res
+    print(message)
+    write_to_order_logs(message)
+
 def short( ScripCode , Qty, Price,OrderType='S',Exchange='N',ExchangeType='C'):
     global client
-    client.place_order(OrderType=OrderType,
+    res=client.place_order(OrderType=OrderType,
                        Exchange=Exchange,
                        ExchangeType=ExchangeType,
                        ScripCode = ScripCode,
                        Qty=Qty,
+                       IsIntraday=True,
                        Price=Price)
+    message = "Short order responce: ", res
+    print(message)
+    write_to_order_logs(message)
+
+
 
 def cover( ScripCode , Qty, Price,OrderType='B',Exchange='N',ExchangeType='C'):
     global client
-    client.place_order(OrderType=OrderType,
+    res=client.place_order(OrderType=OrderType,
                        Exchange=Exchange,
                        ExchangeType=ExchangeType,
                        ScripCode = ScripCode,
                        Qty=Qty,
+                       IsIntraday=True,
                        Price=Price)
+    message = "Cover order responce: ", res
+    print(message)
+    write_to_order_logs(message)
 
 def get_position():
     global client

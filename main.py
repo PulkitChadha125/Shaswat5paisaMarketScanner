@@ -64,7 +64,9 @@ Stoptime=credentials_dict.get('Stoptime')
 symbol_dict={}
 priority_dict={}
 formatted_symbols=None
-
+def savetocsv(symbol_dict):
+    df = pd.DataFrame.from_dict(symbol_dict, orient='index')
+    df.to_csv('symbol_data.csv', index_label='Symbol')
 def my_trade_universe():
     global BuyBufferPercentage ,SellBufferPercentage , Leverage_multiplier, Lot3_percentage,Lot2_percentage, Lot1_percentage,TotalAmountQty, symbol_dict, formatted_symbols,StoplossPercentage,Target1Percentage,Target2Percentage,Target3Percentage,TSLPercentage
     try:
@@ -123,7 +125,7 @@ def my_trade_universe():
 
         # print(symbol_dict)
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+        savetocsv(symbol_dict)
         print(symbol_dict)
     except Exception as e:
         print("An error occurred while reading the MYINSTRUMENTS.CSV file:", str(e))
@@ -146,7 +148,7 @@ def check_orders(symbol_dict):
 
             print(f"symbol: {symbol},ltp:{ltp}")
             print(f"symbol: {symbol},data['buyval']:{data['buyval']}")
-            if data['tradetype'] is None and float(data['buyval'] ) > 0 and float(ltp) > float(data['buyval']) and now>=StartTime and now < Stoptime:
+            if data['tradetype'] is None and float(data['buyval'] ) > 0 and float(ltp) > float(data['buyval']) and now>=StartTime and now < Stoptime and ltp>0:
                 ltp = ltp
                 data['tradetype']="BUY"
                 data["stoplos_bool"]=True
@@ -212,7 +214,7 @@ def check_orders(symbol_dict):
                 FivePaisaIntegration.buy(ScripCode=str(data['scriptcode']) , Qty=int(totalqty), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
 
 
-            if data['tradetype'] is None and float(data['sellval']) > 0 and float(ltp) < float(data['sellval']) and now>=StartTime and now < Stoptime:
+            if data['tradetype'] is None and float(data['sellval']) > 0 and float(ltp) < float(data['sellval']) and now>=StartTime and now < Stoptime and ltp>0:
                 data['tradetype'] = "SHORT"
                 data["stoplos_bool"] = True
                 data["tp1_bool"] = True
@@ -276,14 +278,14 @@ def check_orders(symbol_dict):
 
                         # Now you can use 'quantity' as needed in your logic
 
-                    if quantity > 0 and data['tradetype'] == "BUY" and float(ltp) >= float(data["tslstep"]):
+                    if quantity > 0 and data['tradetype'] == "BUY" and float(ltp) >= float(data["tslstep"]) and ltp>0:
                         data["tslstep"] = ltp + data["tslval"]
                         data['stoplossval'] = ltp - data["slpts"]
                         orderlog = f"{timestamp} Tsl executed {symbol} for lotsize=  @ {ltp} new  Stoploss ={data['stoplossval']}"
                         print(orderlog)
                         write_to_order_logs(orderlog)
 
-                    if quantity > 0 and data['tradetype'] == "SHORT" and float(ltp) <= float(data["tslstep"]):
+                    if quantity > 0 and data['tradetype'] == "SHORT" and float(ltp) <= float(data["tslstep"]) and ltp>0:
                         data["tslstep"] = ltp - data["tslval"]
                         data['stoplossval'] = ltp + data["slpts"]
                         orderlog = f"{timestamp} Tsl executed {symbol} for lotsize=  @ {ltp} new  Stoploss ={data['stoplossval']}"
@@ -291,7 +293,7 @@ def check_orders(symbol_dict):
                         write_to_order_logs(orderlog)
 
                     if quantity > 0 and data['tradetype'] == "BUY" and float(ltp) >= float(data['tp1']) and float(
-                            data['tp1']) > 0 and data["tp1_bool"] == True:
+                            data['tp1']) > 0 and data["tp1_bool"] == True and ltp>0:
                         data["tp1_bool"] = False
                         data["slqty"] = int(data["slqty"]) - int(data["tp1qty"])
 
@@ -301,7 +303,7 @@ def check_orders(symbol_dict):
                         write_to_order_logs(orderlog)
 
                     if quantity < 0 and data['tradetype'] == "SHORT" and float(ltp) <= float(data['tp1']) and float(
-                            data['tp1']) > 0 and data["tp1_bool"] == True:
+                            data['tp1']) > 0 and data["tp1_bool"] == True and ltp>0:
                         data["tp1_bool"] = False
                         data["slqty"] = int(data["slqty"]) - int(data["tp1qty"])
                         FivePaisaIntegration.cover(ScripCode=str(data['scriptcode']) ,Qty= int(data["tp1qty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
@@ -310,7 +312,7 @@ def check_orders(symbol_dict):
                         write_to_order_logs(orderlog)
 
                     if quantity > 0 and data['tradetype'] == "BUY" and float(ltp) >= float(data['tp2']) and float(
-                            data['tp2']) > 0 and data["tp2_bool"] == True:
+                            data['tp2']) > 0 and data["tp2_bool"] == True and ltp>0:
                         data["tp2_bool"] = False
                         data["slqty"] = int(data["slqty"]) - int(data["tp2qty"])
                         FivePaisaIntegration.sell(ScripCode=str(data['scriptcode']), Qty= int(data["tp2qty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
@@ -319,7 +321,7 @@ def check_orders(symbol_dict):
                         write_to_order_logs(orderlog)
 
                     if quantity < 0 and data['tradetype'] == "SHORT" and float(ltp) <= float(data['tp2']) and float(
-                            data['tp2']) > 0 and data["tp2_bool"] == True:
+                            data['tp2']) > 0 and data["tp2_bool"] == True and ltp>0:
                         data["tp2_bool"] = False
                         data["slqty"] = int(data["slqty"]) - int(data["tp2qty"])
                         FivePaisaIntegration.cover(ScripCode=str(data['scriptcode']), Qty=int(data["tp2qty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
@@ -328,7 +330,7 @@ def check_orders(symbol_dict):
                         write_to_order_logs(orderlog)
 
                     if quantity > 0 and data['tradetype'] == "BUY" and float(ltp) >= float(data['tp3']) and float(
-                            data['tp3']) > 0 and data["tp3_bool"] == True:
+                            data['tp3']) > 0 and data["tp3_bool"] == True and ltp>0:
                         data["tp3_bool"] = False
                         data["slqty"] = 0
                         FivePaisaIntegration.sell(ScripCode=str(data['scriptcode']),Qty= int(data["tp3qty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
@@ -338,7 +340,7 @@ def check_orders(symbol_dict):
                         data['tradetype'] = "TradeDone"
 
                     if quantity < 0 and data['tradetype'] == "SHORT" and float(ltp) <= float(data['tp3']) and float(
-                            data['tp3']) > 0 and data["tp3_bool"] == True:
+                            data['tp3']) > 0 and data["tp3_bool"] == True and ltp>0:
                         data["tp3_bool"] = False
                         data["slqty"] = 0
                         FivePaisaIntegration.cover(ScripCode=str(data['scriptcode']),Qty= int(data["tp3qty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
@@ -348,7 +350,7 @@ def check_orders(symbol_dict):
                         data['tradetype'] = "TradeDone"
 
                     if quantity > 0 and data['tradetype'] == "BUY" and float(ltp) <= float(
-                            data['stoplossval']) and float(data['stoplossval']) > 0 and data["stoplos_bool"] == True:
+                            data['stoplossval']) and float(data['stoplossval']) > 0 and data["stoplos_bool"] == True and ltp>0:
                         data["stoplos_bool"] = False
                         FivePaisaIntegration.sell(ScripCode=str(data['scriptcode']),Qty= int(data["slqty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
                         orderlog = f"{timestamp} Buy Stoploss executed {symbol} @ {ltp} , qty traded: {data['slqty']}"
@@ -357,7 +359,7 @@ def check_orders(symbol_dict):
                         data['tradetype'] = "TradeDone"
 
                     if quantity < 0 and data['tradetype'] == "SHORT" and float(ltp) >= float(
-                            data['stoplossval']) and float(data['stoplossval']) > 0 and data["stoplos_bool"] == True:
+                            data['stoplossval']) and float(data['stoplossval']) > 0 and data["stoplos_bool"] == True and ltp>0:
                         data["stoplos_bool"] = False
                         FivePaisaIntegration.cover(ScripCode=str(data['scriptcode']), Qty=int(data["slqty"]), Price=float(FivePaisaIntegration.get_ltp(code=str(data['scriptcode']))))
                         orderlog = f"{timestamp} Short Stoploss executed {symbol} @ {ltp}, qty traded: {data['slqty']}"
@@ -372,8 +374,7 @@ def check_orders(symbol_dict):
 
 # FivePaisaIntegration.get_margin()
 # FivePaisaIntegration.get_ltp(code=2023678)
-# FivePaisaIntegration.buy(ScripCode="1660" , Qty=int(1), Price=float(FivePaisaIntegration.get_ltp(code="1660")))
-
+# FivePaisaIntegration.short(ScripCode="1660" , Qty=int(1), Price=float(FivePaisaIntegration.get_ltp(code="1660")))
 
 
 def mainstrategy():
@@ -390,4 +391,5 @@ def mainstrategy():
 
 
 my_trade_universe()
+savetocsv(symbol_dict)
 mainstrategy()
